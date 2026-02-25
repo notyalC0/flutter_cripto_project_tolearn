@@ -118,8 +118,7 @@ class ContaRepository extends ChangeNotifier {
   }
 
   Future<void> checkoutCarrinho(List<CartItem> itens) async {
-    if (itens.isEmpty)
-      return; // verificar se o carrinho não está vazio se for vazio, não faz nada
+    if (itens.isEmpty) return; // verificar se o carrinho não está vazio se for vazio, não faz nada
 
     final db = await getDb(); // obter a instância do banco de dados
     final total = itens.fold(
