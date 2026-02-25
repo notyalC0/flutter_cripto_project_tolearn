@@ -5,7 +5,7 @@ import '../models/carteira.dart';
 import '../models/historico.dart';
 
 class ContaService {
-  final String urlbase = 'http://localhost:8080/api/';
+  final String urlbase = 'http://localhost:8080/api';
 
 /*
 Respostas Informativas (100 – 199)
@@ -18,7 +18,7 @@ Respostas de erro do servidor (500 – 599)
 // Receber dados da Api
 
   Future<List<Conta>> fetchContas() async {
-    final response = await http.get(Uri.parse('$urlbase/conta/1'));
+    final response = await http.get(Uri.parse('$urlbase/conta'));
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Conta.fromJson(i)).toList();

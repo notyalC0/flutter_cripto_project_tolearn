@@ -1,5 +1,4 @@
-import 'dart:convert';
-
+/*
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -43,3 +42,4 @@ Future<http.Response> deleteConta(String id) async {
   var url = 'http://localhost:8080/api/conta/$id';
   return http.delete(Uri.parse(url));
 }
+ */

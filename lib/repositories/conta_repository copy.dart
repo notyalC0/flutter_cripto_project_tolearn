@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/database/db.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import '../models/cart_item.dart';
-import '../models/conta.dart';
 import '../models/moeda.dart';
 import '../models/posicao.dart';
 import '../models/transacao.dart';
-import '../service/conta_service.dart';
 import 'moeda_repository.dart';
 
 class ContaRepository extends ChangeNotifier {
@@ -15,13 +13,9 @@ class ContaRepository extends ChangeNotifier {
   final List<Posicao> _carteira = [];
   final List<Transacao> _historico = [];
 
-
-
-
   double get saldo => _saldo;
   List<Posicao> get carteira => List.unmodifiable(_carteira);
   List<Transacao> get historico => List.unmodifiable(_historico);
-  final ContaService service = ContaService();
 
   ContaRepository() {
     _init();
@@ -46,16 +40,17 @@ class ContaRepository extends ChangeNotifier {
 // Busca o saldo atual da conta, se não existir, cria uma linha com saldo 0
 
   Future<void> _getSaldo() async {
-    try {
-      final conta = await service.fetchContas();
-      if (conta.isEmpty) {
-        throw Exception('nao foi possivel recuperar os dados');
-      }
-      _saldo = (conta.first.saldo).toDouble();
-      notifyListeners();
-    } catch (e) {
-      print('Erro: $e');
+    final db = await getDb();
+    final conta = await db.query('conta', limit: 1);
+
+    if (conta.isEmpty) {
+      // se não existir linha, cria uma
+      await db.insert('conta', {'saldo': 0.0});
+      _saldo = 0.0;
+      return;
     }
+    _saldo = (conta.first['saldo'] as num).toDouble();
+    notifyListeners();
   }
 
 // Busca as transações ordenadas da mais recente para a mais antiga
@@ -106,7 +101,7 @@ class ContaRepository extends ChangeNotifier {
     final db = await getDb();
 
     // garante que existe uma linha (id = 1)
-    final conta = await service.fetchContas();
+    final conta = await db.query('conta', limit: 1);
     if (conta.isEmpty) {
       await db.insert('conta', {'saldo': valor});
     } else {
@@ -114,7 +109,7 @@ class ContaRepository extends ChangeNotifier {
         'conta',
         {'saldo': valor},
         where: 'id = ?',
-        whereArgs: [conta.first.id],
+        whereArgs: [conta.first['id']],
       );
     }
 
@@ -123,8 +118,7 @@ class ContaRepository extends ChangeNotifier {
   }
 
   Future<void> checkoutCarrinho(List<CartItem> itens) async {
-    if (itens.isEmpty)
-      return; // verificar se o carrinho não está vazio se for vazio, não faz nada
+    if (itens.isEmpty) return; // verificar se o carrinho não está vazio se for vazio, não faz nada
 
     final db = await getDb(); // obter a instância do banco de dados
     final total = itens.fold(
