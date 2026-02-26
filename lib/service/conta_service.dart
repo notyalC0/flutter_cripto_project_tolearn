@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_app/models/favoritas.dart';
 import 'package:http/http.dart' as http;
 import '../models/conta.dart';
 import '../models/carteira.dart';
@@ -23,7 +24,7 @@ Respostas de erro do servidor (500 – 599)
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Conta.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados!');
+      throw Exception('Não foi possivel obter os dados para contas!');
     }
   }
 
@@ -33,7 +34,7 @@ Respostas de erro do servidor (500 – 599)
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Historico.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados!');
+      throw Exception('Não foi possivel obter os dados para historico!');
     }
   }
 
@@ -43,7 +44,17 @@ Respostas de erro do servidor (500 – 599)
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Carteira.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados!');
+      throw Exception('Não foi possivel obter os dados para carteira!');
+    }
+  }
+
+  Future<List<Favoritas>> fetchFavoritas() async {
+    final response = await http.get(Uri.parse('$urlbase/favoritas'));
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((i) => Favoritas.fromJson(i)).toList();
+    } else {
+      throw Exception('Não foi possivel obter os dados para favoritas!');
     }
   }
 
@@ -54,7 +65,7 @@ Respostas de erro do servidor (500 – 599)
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(conta.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados!');
+      throw Exception('Não foi possivel enviar os dados para a conta!');
     }
   }
 
@@ -63,7 +74,7 @@ Respostas de erro do servidor (500 – 599)
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(historico.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados!');
+      throw Exception('Não foi possivel enviar os dados para o historico!');
     }
   }
 
@@ -72,7 +83,16 @@ Respostas de erro do servidor (500 – 599)
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(carteira.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados!');
+      throw Exception('Não foi possivel enviar os dados para a carteira!');
+    }
+  }
+
+  Future<void> addFavoritas(Favoritas favoritas) async {
+    final response = await http.post(Uri.parse('$urlbase/favoritas'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(favoritas.toJson()));
+    if (response.statusCode != 200) {
+      throw Exception('Não foi possivel enviar os dados para as favoritas!');
     }
   }
 
@@ -84,7 +104,7 @@ Respostas de erro do servidor (500 – 599)
         body: jsonEncode(conta.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados!');
+      throw Exception('Não foi possivel atualizar os dados para a conta!');
     }
   }
 
@@ -95,7 +115,7 @@ Respostas de erro do servidor (500 – 599)
         body: jsonEncode(historico.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados!');
+      throw Exception('Não foi possivel atualizar os dados para o historico!');
     }
   }
 
@@ -106,7 +126,17 @@ Respostas de erro do servidor (500 – 599)
         body: jsonEncode(carteira.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados!');
+      throw Exception('Não foi possivel atualizar os dados para a carteira!');
+    }
+  }
+
+  Future<void> updateFavoritas(Favoritas favoritas) async {
+    final response = await http.put(
+        Uri.parse('$urlbase/favoritas/${favoritas.sigla}'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(favoritas.toJson()));
+    if (response.statusCode != 200) {
+      throw Exception('Não foi possivel enviar os dados para as favoritas!');
     }
   }
 
@@ -115,21 +145,28 @@ Respostas de erro do servidor (500 – 599)
   Future<void> deletarConta(int id) async {
     final response = await http.delete(Uri.parse("$urlbase/conta/$id"));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados!');
+      throw Exception('Não foi possivel deletar os dados para a conta!');
     }
   }
 
   Future<void> deletarHistorico(int id) async {
     final response = await http.delete(Uri.parse("$urlbase/historico/$id"));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados!');
+      throw Exception('Não foi possivel deletar os dados para o historico!');
     }
   }
 
   Future<void> deletarCarteira(String sigla) async {
     final response = await http.delete(Uri.parse("$urlbase/carteira/$sigla"));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados!');
+      throw Exception('Não foi possivel deletar os dados para a carteira!');
+    }
+  }
+
+  Future<void> deletarFavoritas(String sigla) async {
+    final response = await http.delete(Uri.parse('$urlbase/favoritas/$sigla'));
+    if (response.statusCode != 200) {
+      throw Exception('Não foi possivel deletar os dados para as favoritas!');
     }
   }
 }

@@ -1,9 +1,9 @@
 class Historico {
-  final int id;
+  final int? id;
 
-  final int data_operacao;
+  final int dataOp;
 
-  final String tipo_operacao;
+  final String tipoOp;
 
   final String moeda;
 
@@ -11,37 +11,42 @@ class Historico {
 
   final double valor;
 
-  final double quantidade;
+  final double qtd;
 
   Historico(
-      {required this.id,
-      required this.data_operacao,
-      required this.tipo_operacao,
+      {this.id,
+      required this.dataOp,
+      required this.tipoOp,
       required this.moeda,
       required this.sigla,
       required this.valor,
-      required this.quantidade});
+      required this.qtd});
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "data_operacao": data_operacao,
-      "tipo_operacao": tipo_operacao,
+      "data_operacao": dataOp,
+      "tipo_operacao": tipoOp,
       "moeda": moeda,
       "sigla": sigla,
       "valor": valor,
-      "quantidade": quantidade,
+      "qtd": qtd,
     };
   }
 
   factory Historico.fromJson(Map<String, dynamic> json) {
     return Historico(
         id: json['id'],
-        data_operacao: json['data_operacao'],
-        tipo_operacao: json['tipo_operacao'],
+        dataOp: json['dataOp'],
+        tipoOp: json['tipoOp'],
         moeda: json['moeda'],
         sigla: json['sigla'],
-        valor: json['valor'],
-        quantidade: json['quantidade']);
+        valor: (json['valor'] == null)
+            ? 0.0
+            : double.parse(json['valor'].toString()),
+        qtd:
+            (json['qtd'] == null)
+            ? 0.0
+            : double.parse(json['qtd'].toString()));
   }
 }

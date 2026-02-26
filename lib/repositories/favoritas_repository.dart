@@ -1,12 +1,14 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/models/favoritas.dart';
+import 'package:flutter_app/service/conta_service.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'moeda_repository.dart';
 
 class FavoritasRepository extends ChangeNotifier {
   final Box _box = Hive.box('favorites');
-
+  final _service = ContaService();
   final List<Moeda> _lista = [];
 
   UnmodifiableListView<Moeda> get lista => UnmodifiableListView(_lista);
@@ -15,42 +17,57 @@ class FavoritasRepository extends ChangeNotifier {
     _load();
   }
 
-  void _load() {
-    final siglas = (_box.get('siglas', defaultValue: <String>[]) as List)
-        .map((e) => e.toString())
-        .toList();
+  Future<void> _load() async {
+    try {
+      final favoritas = await _service.fetchFavoritas();
+      final siglas = favoritas.map((f) => f.sigla).toList();
 
-    _lista
-      ..clear()
-      ..addAll(MoedaRepository.tabela.where((m) => siglas.contains(m.sigla)));
+      _lista
+        ..clear()
+        ..addAll(MoedaRepository.tabela.where((m) => siglas.contains(m.sigla)));
 
-    notifyListeners();
-  }
-
-  Future<void> _save() async {
-    final siglas = _lista.map((m) => m.sigla).toList();
-    await _box.put('siglas', siglas);
+      notifyListeners();
+    } catch (e) {
+      print('Nao foi possivel obter as favoritas: $e');
+    }
   }
 
   bool isFavorita(Moeda moeda) => _lista.any((m) => m.sigla == moeda.sigla);
 
   Future<void> saveAll(List<Moeda> moedas) async {
     for (final moeda in moedas) {
-      if (!isFavorita(moeda)) _lista.add(moeda);
+      if (!isFavorita(moeda)) {
+        try {
+          await _service.updateFavoritas(Favoritas(sigla: moeda.sigla));
+          _lista.add(moeda);
+        } catch (e) {
+          print('Erro ao atualizar favoritas $e');
+        }
+      }
+      notifyListeners();
     }
-    await _save();
-    notifyListeners();
   }
 
   Future<void> remove(Moeda moeda) async {
-    _lista.removeWhere((m) => m.sigla == moeda.sigla);
-    await _save();
-    notifyListeners();
+    try {
+      await _service.deletarFavoritas(moeda.sigla);
+      _lista.removeWhere((m) => m.sigla == moeda.sigla);
+      notifyListeners();
+    } catch (e) {
+      print('Erro ao deletar favoritas erro: $e');
+    }
   }
 
   Future<void> clear() async {
+    for (final moeda in List.of(_lista)) {
+      try {
+        await _service.deletarFavoritas(moeda.sigla);
+      } catch (e) {
+        print('falha ao limpar moeda favorita ${moeda.sigla} erro: $e');
+      }
+    }
     _lista.clear();
-    await _save();
+
     notifyListeners();
   }
 }

@@ -1,8 +1,8 @@
 class Conta {
-  final int id;
+  final int? id;
   final double saldo;
 
-  Conta({required this.id, required this.saldo});
+  Conta({this.id, required this.saldo});
 
   Map<String, dynamic> toJson() {
     return {

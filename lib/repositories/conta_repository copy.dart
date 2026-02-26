@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/* import 'package:flutter/material.dart';
 import 'package:flutter_app/database/db.dart';
 import 'package:sqflite_common/sqlite_api.dart';
 import '../models/cart_item.dart';
@@ -93,6 +93,8 @@ class ContaRepository extends ChangeNotifier {
             valor: (row['valor'] as num).toDouble(),
             quantidade: qtd);
       }));
+
+
   }
 
 //------------- SETTERS ---------------\\
@@ -118,7 +120,8 @@ class ContaRepository extends ChangeNotifier {
   }
 
   Future<void> checkoutCarrinho(List<CartItem> itens) async {
-    if (itens.isEmpty) return; // verificar se o carrinho não está vazio se for vazio, não faz nada
+    if (itens.isEmpty)
+      return; // verificar se o carrinho não está vazio se for vazio, não faz nada
 
     final db = await getDb(); // obter a instância do banco de dados
     final total = itens.fold(
@@ -222,3 +225,4 @@ class ContaRepository extends ChangeNotifier {
     await refreshAll(); // atualizar os dados da conta após a compra
   }
 }
+ */
