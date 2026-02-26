@@ -1,4 +1,3 @@
-import 'package:sqflite_common/sqlite_api.dart';
 import 'package:sqflite_common/sqflite.dart';
 import 'package:path/path.dart';
 

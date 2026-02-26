@@ -7,7 +7,7 @@ import '../repositories/cart_repository.dart';
 import '../repositories/conta_repository.dart';
 
 class CarrinhoSheet extends StatelessWidget {
-  const CarrinhoSheet();
+  const CarrinhoSheet({super.key});
 
   @override
   Widget build(BuildContext context) {

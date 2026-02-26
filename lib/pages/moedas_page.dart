@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'package:flutter_app/repositories/favoritas_repository.dart';
 import 'package:flutter_app/repositories/moeda_repository.dart';
-import 'package:flutter_app/meu_app.dart';
 import 'package:flutter_app/widgets/moedas_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/widgets/carrinho_sheet.dart';
 import '../config/app.settings.dart';
 import '../repositories/cart_repository.dart';
-import '../repositories/conta_repository.dart';
-import '../helpers/formatters.dart';
 
 class MoedasPage extends StatefulWidget {
   const MoedasPage({Key? key}) : super(key: key);

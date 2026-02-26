@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../repositories/conta_repository.dart';
 import '../models/cart_item.dart';
 import '../repositories/cart_repository.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_app/helpers/formatters.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'package:provider/provider.dart';
