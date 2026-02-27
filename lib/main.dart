@@ -3,19 +3,30 @@ import 'package:flutter_app/config/app.settings.dart';
 import 'package:flutter_app/repositories/cart_repository.dart';
 import 'package:flutter_app/repositories/conta_repository.dart';
 import 'package:flutter_app/repositories/favoritas_repository.dart';
+import 'package:flutter_app/service/auth_service.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'meu_app.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'models/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
+
+  final authService = AuthService();
+
+  try {
+    await authService.login(Login(
+      email: 'admin@teste',
+      senha: 'admin',
+    ));
+    final token = await authService.getToken();
+    debugPrint('$token');
+  } catch (e) {
+    throw Exception('Erro: $e');
+  }
 
   await Hive.initFlutter();
   await Hive.openBox('settings');
-  await Hive.openBox('favorites');
 
   runApp(
     MultiProvider(

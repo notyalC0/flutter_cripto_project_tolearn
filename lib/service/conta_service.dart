@@ -1,12 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_app/models/favoritas.dart';
+import 'package:flutter_app/service/auth_service.dart';
 import 'package:http/http.dart' as http;
 import '../models/conta.dart';
 import '../models/carteira.dart';
 import '../models/historico.dart';
-
-class ContaService {
-  final String urlbase = 'http://localhost:8080/api';
 
 /*
 Respostas Informativas (100 – 199)
@@ -16,10 +15,27 @@ Respostas de erro do cliente (400 – 499)
 Respostas de erro do servidor (500 – 599)
 */
 
+class ContaService {
+  final String urlbase = 'http://localhost:8080/api';
+  final AuthService _authService = AuthService();
+
+// _headers
+
+  Future<Map<String, String>> _headers() async {
+    final token = await _authService.getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+  }
+
 // Receber dados da Api
 
   Future<List<Conta>> fetchContas() async {
-    final response = await http.get(Uri.parse('$urlbase/conta'));
+    final response = await http.get(
+      Uri.parse('$urlbase/conta'),
+      headers: await _headers(),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Conta.fromJson(i)).toList();
@@ -29,7 +45,10 @@ Respostas de erro do servidor (500 – 599)
   }
 
   Future<List<Historico>> fetchHistorico() async {
-    final response = await http.get(Uri.parse('$urlbase/historico'));
+    final response = await http.get(
+      Uri.parse('$urlbase/historico'),
+      headers: await _headers(),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Historico.fromJson(i)).toList();
@@ -39,7 +58,10 @@ Respostas de erro do servidor (500 – 599)
   }
 
   Future<List<Carteira>> fetchCarteira() async {
-    final response = await http.get(Uri.parse('$urlbase/carteira'));
+    final response = await http.get(
+      Uri.parse('$urlbase/carteira'),
+      headers: await _headers(),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Carteira.fromJson(i)).toList();
@@ -49,7 +71,10 @@ Respostas de erro do servidor (500 – 599)
   }
 
   Future<List<Favoritas>> fetchFavoritas() async {
-    final response = await http.get(Uri.parse('$urlbase/favoritas'));
+    final response = await http.get(
+      Uri.parse('$urlbase/favoritas'),
+      headers: await _headers(),
+    );
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Favoritas.fromJson(i)).toList();
@@ -62,8 +87,7 @@ Respostas de erro do servidor (500 – 599)
 
   Future<void> addConta(Conta conta) async {
     final response = await http.post(Uri.parse('$urlbase/conta'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(conta.toJson()));
+        headers: await _headers(), body: jsonEncode(conta.toJson()));
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel enviar os dados para a conta!');
     }
@@ -71,8 +95,7 @@ Respostas de erro do servidor (500 – 599)
 
   Future<void> addHistorico(Historico historico) async {
     final response = await http.post(Uri.parse('$urlbase/historico'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(historico.toJson()));
+        headers: await _headers(), body: jsonEncode(historico.toJson()));
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel enviar os dados para o historico!');
     }
@@ -80,8 +103,7 @@ Respostas de erro do servidor (500 – 599)
 
   Future<void> addCarteira(Carteira carteira) async {
     final response = await http.post(Uri.parse('$urlbase/carteira'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(carteira.toJson()));
+        headers: await _headers(), body: jsonEncode(carteira.toJson()));
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel enviar os dados para a carteira!');
     }
@@ -89,8 +111,7 @@ Respostas de erro do servidor (500 – 599)
 
   Future<void> addFavoritas(Favoritas favoritas) async {
     final response = await http.post(Uri.parse('$urlbase/favoritas'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(favoritas.toJson()));
+        headers: await _headers(), body: jsonEncode(favoritas.toJson()));
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel enviar os dados para as favoritas!');
     }
@@ -100,8 +121,7 @@ Respostas de erro do servidor (500 – 599)
 
   Future<void> updateConta(Conta conta) async {
     final response = await http.put(Uri.parse('$urlbase/conta/${conta.id}'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(conta.toJson()));
+        headers: await _headers(), body: jsonEncode(conta.toJson()));
 
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel atualizar os dados para a conta!');
@@ -111,7 +131,7 @@ Respostas de erro do servidor (500 – 599)
   Future<void> updateHistorico(Historico historico) async {
     final response = await http.put(
         Uri.parse('$urlbase/historico/${historico.id}'),
-        headers: {"Content-Type": "application/json"},
+        headers: await _headers(),
         body: jsonEncode(historico.toJson()));
 
     if (response.statusCode != 200) {
@@ -122,7 +142,7 @@ Respostas de erro do servidor (500 – 599)
   Future<void> updateCarteira(Carteira carteira) async {
     final response = await http.put(
         Uri.parse('$urlbase/carteira/${carteira.sigla}'),
-        headers: {"Content-Type": "application/json"},
+        headers: await _headers(),
         body: jsonEncode(carteira.toJson()));
 
     if (response.statusCode != 200) {
@@ -133,7 +153,7 @@ Respostas de erro do servidor (500 – 599)
   Future<void> updateFavoritas(Favoritas favoritas) async {
     final response = await http.put(
         Uri.parse('$urlbase/favoritas/${favoritas.sigla}'),
-        headers: {"Content-Type": "application/json"},
+        headers: await _headers(),
         body: jsonEncode(favoritas.toJson()));
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel enviar os dados para as favoritas!');

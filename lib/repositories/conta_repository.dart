@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/database/db.dart';
 import 'package:flutter_app/models/carteira.dart';
 import 'package:flutter_app/models/historico.dart';
-import 'package:sqflite_common/sqlite_api.dart';
 import 'package:collection/collection.dart';
 import '../models/cart_item.dart';
 import '../models/conta.dart';
@@ -27,7 +25,9 @@ class ContaRepository extends ChangeNotifier {
     _init();
   }
 
-  Future<void> _init() async => await refreshAll();
+  Future<void> _init() async {
+    await refreshAll();
+  }
 
   Future<void> refreshAll() async {
     await _getSaldo();

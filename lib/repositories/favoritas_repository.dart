@@ -2,12 +2,10 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/favoritas.dart';
 import 'package:flutter_app/service/conta_service.dart';
-import 'package:hive/hive.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'moeda_repository.dart';
 
 class FavoritasRepository extends ChangeNotifier {
-  final Box _box = Hive.box('favorites');
   final _service = ContaService();
   final List<Moeda> _lista = [];
 
@@ -44,8 +42,8 @@ class FavoritasRepository extends ChangeNotifier {
           print('Erro ao atualizar favoritas $e');
         }
       }
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   Future<void> remove(Moeda moeda) async {
