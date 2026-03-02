@@ -60,8 +60,10 @@ class MoedasCard extends StatelessWidget {
                         listen: false,
                       ).remove(moeda);
                     },
-                    child: Icon(Icons.close,
-                        size: 18, color: Colors.grey.shade400),
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                    ),
                   ),
                 ),
 
@@ -69,7 +71,6 @@ class MoedasCard extends StatelessWidget {
               selecionada
                   ? const CircleAvatar(
                       radius: 24,
-                      backgroundColor: Colors.indigo,
                       child: Icon(Icons.check, color: Colors.white),
                     )
                   : Image.asset(moeda.icone, width: 48, height: 48),
@@ -84,15 +85,14 @@ class MoedasCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 moeda.sigla,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                style: const TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 8),
               Text(
                 Formatters.moeda(settings, moeda.valor),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ],

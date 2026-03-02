@@ -163,28 +163,40 @@ class ContaService {
   // Deletar dados da api
 
   Future<void> deletarConta(int id) async {
-    final response = await http.delete(Uri.parse("$urlbase/conta/$id"));
+    final response = await http.delete(
+      Uri.parse("$urlbase/conta/$id"),
+      headers: await _headers(),
+    );
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel deletar os dados para a conta!');
     }
   }
 
   Future<void> deletarHistorico(int id) async {
-    final response = await http.delete(Uri.parse("$urlbase/historico/$id"));
+    final response = await http.delete(
+      Uri.parse("$urlbase/historico/$id"),
+      headers: await _headers(),
+    );
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel deletar os dados para o historico!');
     }
   }
 
   Future<void> deletarCarteira(String sigla) async {
-    final response = await http.delete(Uri.parse("$urlbase/carteira/$sigla"));
+    final response = await http.delete(
+      Uri.parse("$urlbase/carteira/$sigla"),
+      headers: await _headers(),
+    );
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel deletar os dados para a carteira!');
     }
   }
 
   Future<void> deletarFavoritas(String sigla) async {
-    final response = await http.delete(Uri.parse('$urlbase/favoritas/$sigla'));
+    final response = await http.delete(
+      Uri.parse('$urlbase/favoritas/$sigla'),
+      headers: await _headers(),
+    );
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel deletar os dados para as favoritas!');
     }

@@ -12,18 +12,7 @@ import 'models/login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final authService = AuthService();
 
-  try {
-    await authService.login(Login(
-      email: 'admin@teste',
-      senha: 'admin',
-    ));
-    final token = await authService.getToken();
-    debugPrint('$token');
-  } catch (e) {
-    throw Exception('Erro: $e');
-  }
 
   await Hive.initFlutter();
   await Hive.openBox('settings');
@@ -35,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ContaRepository()),
         ChangeNotifierProvider(create: (context) => FavoritasRepository()),
         ChangeNotifierProvider(create: (context) => CartRepository()),
+        Provider(create: (context) => AuthService()),
       ],
       child: const MeuApp(),
     ),

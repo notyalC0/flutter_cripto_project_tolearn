@@ -15,69 +15,56 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Variável que controla qual página está sendo exibida
-  // Começa em 0 pois arrays são indexados a partir do zero
   int pageIndex = 0;
 
-  // Lista das páginas disponíveis na navegação
-  // final = não será reatribuída, mas o conteúdo pode mudar
-  // List<Widget> = lista que aceita qualquer Widget como item
   final List<Widget> _paginas = [
-    const MoedasPage(), // index 0
+    const MoedasPage(),
     const FavoritasPage(),
     const CompradasPage(),
     const ConfiguracoesPage(),
-    // index 1
   ];
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold é a estrutura base de uma tela no Flutter
-    // Fornece AppBar, Body, BottomNavigationBar, Drawer, FAB, etc.
+    final theme = Theme.of(context);
     return Scaffold(
-      // body é o conteúdo principal da tela
       body: IndexedStack(
-        // IndexedStack mantém TODOS os widgets filhos na memória
-        // mas exibe apenas o do index atual
-        // Vantagem: preserva o estado das páginas ao trocar de aba
-        // Alternativa mais leve: trocar _paginas[pageIndex] direto no body,
-        // porém perde o estado ao navegar (ex: scroll, formulários)
         index: pageIndex,
         children: _paginas,
       ),
-
-      // Barra de navegação inferior
       bottomNavigationBar: BottomNavigationBar(
-        // Sincroniza o item destacado com a página atual
         currentIndex: pageIndex,
-        backgroundColor: Colors.blueGrey,
-        // onTap é chamado quando o usuário toca em um item
-        // setState() avisa o Flutter que algo mudou e reconstrói o widget
-        // sem setState() a tela não atualizaria visualmente
         onTap: (index) => setState(() => pageIndex = index),
         type: BottomNavigationBarType.fixed,
-        // IMPORTANTE: com 3 ou mais itens, adicione esta linha:
-        // type: BottomNavigationBarType.fixed,
-        // Sem ela, os labels das abas não selecionadas ficam ocultos
-
-        // const = os itens são criados uma vez e reutilizados (melhor performance)
+        backgroundColor: theme.brightness == Brightness.dark
+            ? const Color(0xFF1E293B)
+            : Colors.white,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.hintColor.withOpacity(0.5),
+        showSelectedLabels: true,
+        showUnselectedLabels: false,
+        elevation: 0,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.monetization_on),
-              label: 'Moedas' // index 0 — deve corresponder a _paginas[0]
-              ),
+            icon: Icon(Icons.monetization_on_outlined),
+            label: 'Moedas',
+            activeIcon: Icon(Icons.monetization_on),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.star),
-              label: 'Favoritas' // index 1 — deve corresponder a _paginas[1]
-              ),
+            icon: Icon(Icons.star_outline),
+            label: 'Favoritas',
+            activeIcon: Icon(Icons.star),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.wallet),
-              label: 'Carteira' // index 2 — deve corresponder a _paginas[2]
-              ),
+            icon: Icon(Icons.wallet_outlined),
+            label: 'Carteira',
+            activeIcon: Icon(Icons.wallet),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle),
-              label: 'Conta' // index 3 — deve corresponder a _paginas[3]
-              ),
+            icon: Icon(Icons.account_circle_outlined),
+            label: 'Conta',
+            activeIcon: Icon(Icons.account_circle),
+          ),
         ],
       ),
     );

@@ -22,7 +22,6 @@ class _MoedasPageState extends State<MoedasPage> {
   final tabela = MoedaRepository.tabela;
   List<Moeda> selecionadas = [];
   late FavoritasRepository favoritas;
-  final bool _isdark = false;
 
   void _toggleTheme() {
     final settings = context.read<AppSettings>();
@@ -44,21 +43,17 @@ class _MoedasPageState extends State<MoedasPage> {
     }
 
     appBarDinamica() {
+      final theme = Theme.of(context);
+
       if (selecionadas.isEmpty) {
         return AppBar(
-          title: const Text(
-            'Cripto Moeadas',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          backgroundColor: Colors.blueGrey,
+          title: const Text('Cripto Moeadas'),
           actions: [
             IconButton(
               icon: Text(
                 settings.symbol,
-                style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               tooltip: 'Configurações de Moeda',
               onPressed: () {
@@ -73,21 +68,22 @@ class _MoedasPageState extends State<MoedasPage> {
             // Botão para alternar tema
             IconButton(
               onPressed: _toggleTheme,
-              icon: Icon(_isdark ? Icons.wb_sunny : Icons.nightlight_round),
+              icon: Icon(
+                  settings.isDark ? Icons.wb_sunny : Icons.nightlight_round),
               tooltip: 'Alternar Tema',
             ),
           ],
         );
       } else {
         return AppBar(
+          elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => setState(() => selecionadas.clear()),
           ),
           title: Text('${selecionadas.length} selecionadas'),
-          backgroundColor: Colors.blueGrey[100],
+          backgroundColor: theme.colorScheme.primaryContainer,
           titleTextStyle: const TextStyle(
-            color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -137,7 +133,6 @@ class _MoedasPageState extends State<MoedasPage> {
           if (cart.items.isNotEmpty)
             FloatingActionButton.extended(
               heroTag: 'cart',
-              backgroundColor: Colors.indigo,
               onPressed: () => abrirCarrinho(context),
               icon: const Icon(Icons.shopping_cart),
               label: Text('Carrinho (${cart.items.length})'),
@@ -146,7 +141,6 @@ class _MoedasPageState extends State<MoedasPage> {
           if (selecionadas.isNotEmpty)
             FloatingActionButton.extended(
               heroTag: 'fav',
-              backgroundColor: Colors.blueGrey,
               onPressed: () async {
                 await favoritas.saveAll(selecionadas);
                 setState(() => selecionadas.clear());
@@ -154,9 +148,9 @@ class _MoedasPageState extends State<MoedasPage> {
               label: const Text(
                 'Favoritar',
                 style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                    TextStyle(fontWeight: FontWeight.bold,),
               ),
-              icon: const Icon(Icons.star, color: Colors.black),
+              icon: const Icon(Icons.star,),
             ),
         ],
       ),
