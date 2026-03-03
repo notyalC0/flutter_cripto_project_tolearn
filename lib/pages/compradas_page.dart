@@ -10,19 +10,21 @@ class CompradasPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold é a estrutura base da tela
-    final conta = context.watch<
-        ContaRepository>(); // para acessar os dados da conta e atualizar a tela quando eles mudarem
-    final settings = context.watch<
-        AppSettings>(); // para acessar as configurações de local e símbolo e atualizar a tela quando eles mudarem
+    final conta = context.watch<ContaRepository>();
+    final settings = context.watch<AppSettings>();
+
+    final theme = Theme.of(context);
 
     return DefaultTabController(
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Carteira e Histórico'),
-            bottom: const TabBar(
-              tabs: [
+            centerTitle: true,
+            title: const Text('MINHA CARTEIRA'),
+            bottom: TabBar(
+              indicatorColor: theme.colorScheme.primary,
+              labelColor: theme.hintColor,
+              tabs: const [
                 Tab(text: 'Carteira'),
                 Tab(text: 'Histórico'),
               ],
@@ -30,26 +32,21 @@ class CompradasPage extends StatelessWidget {
           ),
           body: TabBarView(
             children: [
-              // carteira
               conta.carteira.isEmpty
-                  ? const Center(
-                      child: Text('Nenhuma Moeda Comprada'),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
+                  ? _buildEmptyState(theme, "Nenhuma moeda comprada")
+                  : _buildList(
                       itemCount: conta.carteira.length,
-                      separatorBuilder: (_, __) => const Divider(),
                       itemBuilder: (context, i) {
                         final p = conta.carteira[i];
 
                         return ListTile(
-                          leading: p.moeda.icone.isEmpty
-                              ? const CircleAvatar(
-                                  child: Icon(Icons.currency_bitcoin))
-                              : Image.asset(p.moeda.icone,
-                                  width: 32, height: 32),
-                          title: Text('${p.moeda.nome} (${p.moeda.sigla})'),
-                          subtitle: Text('Quantidade: ${p.quantidade}'),
+                          leading:
+                              Image.asset(p.moeda.icone, width: 32, height: 32),
+                          title: Text(
+                            '${p.moeda.nome} (${p.moeda.sigla})',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text('Qtd: ${p.quantidade}'),
                           trailing: Text(
                             Formatters.formatCurrency(
                                 settings, p.moeda.valor * p.quantidade),
@@ -61,37 +58,31 @@ class CompradasPage extends StatelessWidget {
 
               // histórico
               conta.historico.isEmpty
-                  ? const Center(child: Text('Sem transações registradas'))
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
+                  ? _buildEmptyState(theme, 'Sem transações registradas')
+                  : _buildList(
                       itemCount: conta.historico.length,
-                      separatorBuilder: (_, __) => const Divider(),
                       itemBuilder: (context, i) {
                         final t = conta.historico[i];
                         final data =
                             DateTime.fromMillisecondsSinceEpoch(t.dataOperacao);
+                        final isCompra = t.tipo == 'compra';
                         return ListTile(
                           leading: Icon(
-                            t.tipo == 'compra'
+                            isCompra
                                 ? Icons.add_circle_outline
                                 : Icons.remove_circle_outline,
+                            color: isCompra ? Colors.teal : Colors.deepOrange,
                           ),
-                          title: Text('${t.tipo} - ${t.moeda} - (${t.sigla})'),
+                          title: Text(' ${t.moeda} (${t.sigla})'),
                           subtitle: Text(
-                            '${data.day.toString().padLeft(2, '0')}/'
-                            '${data.month.toString().padLeft(2, '0')}/'
-                            '${data.year}  '
-                            '${data.hour.toString().padLeft(2, '0')}:'
-                            '${data.minute.toString().padLeft(2, '0')}'
-                            '\nQtd: ${t.quantidade}',
+                            '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}\nTotal: ${t.quantidade}',
                           ),
+                          isThreeLine: true,
                           trailing: Text(
                             Formatters.formatCurrency(
                                 settings, t.valor * t.quantidade),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          isThreeLine:
-                              true, // para permitir que o subtitle ocupe mais de uma linha
                         );
                       },
                     ),
@@ -99,4 +90,23 @@ class CompradasPage extends StatelessWidget {
           ),
         ));
   }
+}
+
+Widget _buildList(
+    {required int itemCount,
+    required Widget Function(BuildContext, int) itemBuilder}) {
+  return ListView.separated(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+    itemCount: itemCount,
+    separatorBuilder: (_, __) =>
+        const Divider(height: 1), // Divider bem fininho
+    itemBuilder: itemBuilder,
+  );
+}
+
+// Helper para estados vazios
+Widget _buildEmptyState(ThemeData theme, String text) {
+  return Center(
+    child: Text(text, style: TextStyle(color: theme.hintColor)),
+  );
 }

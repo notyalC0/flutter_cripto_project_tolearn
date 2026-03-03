@@ -12,6 +12,7 @@ class MoedasCard extends StatelessWidget {
   final bool showRemove;
   final bool selecionada;
   final VoidCallback? onLongPress;
+  final String? tagPrefix;
 
   // StatelessWidget pois o card só exibe dados, não tem estado próprio
   const MoedasCard(
@@ -19,29 +20,40 @@ class MoedasCard extends StatelessWidget {
       required this.moeda,
       this.showRemove = false,
       this.selecionada = false,
-      this.onLongPress})
+      this.onLongPress,
+      this.tagPrefix})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
+    final theme = Theme.of(context);
     return Card(
       elevation: 0,
       margin: const EdgeInsets.all(6),
       // Cor muda quando selecionado
-      color: selecionada ? Colors.indigo[50] : null,
+      color: selecionada
+          ? theme.colorScheme.primary.withOpacity(0.1)
+          : theme.cardColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         // Borda azul quando selecionado
-        side: selecionada
-            ? const BorderSide(color: Colors.indigo, width: 2)
-            : BorderSide(color: Colors.grey.shade200),
+        side: BorderSide(
+          color: selecionada
+              ? theme.colorScheme.primary
+              : theme.dividerColor.withOpacity(0.1),
+          width: 2,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MoedasDetalhesPage(moeda: moeda)),
+          MaterialPageRoute(
+              builder: (_) => MoedasDetalhesPage(
+                    moeda: moeda,
+                    tagPrefix: tagPrefix ?? '',
+                  )),
         ),
         onLongPress: onLongPress, // null = sem ação, definido pela página pai
         child: Padding(
@@ -69,31 +81,37 @@ class MoedasCard extends StatelessWidget {
 
               // Ícone de check quando selecionado, imagem quando não
               selecionada
-                  ? const CircleAvatar(
+                  ? CircleAvatar(
                       radius: 24,
-                      child: Icon(Icons.check, color: Colors.white),
+                      backgroundColor: theme.colorScheme.primary,
+                      child: const Icon(Icons.check, color: Colors.white),
                     )
-                  : Image.asset(moeda.icone, width: 48, height: 48),
+                  : Hero(
+                      tag: '${tagPrefix ?? ''}${moeda.sigla}',
+                      child: Image.asset(moeda.icone, width: 48, height: 48),
+                    ),
 
               const SizedBox(height: 12),
               Text(
                 moeda.nome,
                 textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 moeda.sigla,
-                style: const TextStyle(fontSize: 12),
+                style:
+                    theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
               ),
               const SizedBox(height: 8),
               Text(
                 Formatters.moeda(settings, moeda.valor),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary),
               ),
             ],
           ),

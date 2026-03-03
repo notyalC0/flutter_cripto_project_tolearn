@@ -17,56 +17,76 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
     final conta = context.watch<ContaRepository>();
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configurações'),
+        title: const Text('CONFIGURAÇÕES'),
+        centerTitle: true,
       ),
-      body: Padding(
+      body: ListView(
+        // Alterado para ListView para garantir que role em telas pequenas
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Tema', style: Theme.of(context).textTheme.titleLarge),
-            SwitchListTile(
+        children: [
+          // --- SEÇÃO: APARÊNCIA ---
+          _buildSectionHeader(theme, 'Aparência'),
+          Card(
+            elevation: 0,
+            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            child: SwitchListTile(
               title: const Text('Modo Escuro'),
+              secondary: const Icon(Icons.brightness_6),
               value: settings.isDark,
-              onChanged: (value) {
-                settings.setTheme(value);
-              },
+              onChanged: (value) => settings.setTheme(value),
             ),
-            const SizedBox(height: 20),
-            Text('Moeda',
-                style: Theme.of(context).textTheme.titleLarge),
-            ListTile(
-              title: const Text('Moeda'),
-              subtitle:
-                  Text(settings.localeCode == 'pt-BR' ? 'R\$' : 'US\$'),
-              trailing: IconButton(
-                onPressed: () {
-                  if (settings.localeCode == 'pt-BR') {
-                    context.read<AppSettings>().setLocale('en-US', '\$');
-                  } else {
-                    context.read<AppSettings>().setLocale('pt-BR', 'R\$');
-                  }
-                },
-                icon: const Icon(Icons.language),
-              ),
+          ),
+          const SizedBox(height: 20),
+
+          // --- SEÇÃO: LOCALIZAÇÃO ---
+          _buildSectionHeader(theme, 'Preferências'),
+          ListTile(
+            leading: const Icon(Icons.payments_outlined),
+            title: const Text('Moeda de Exibição'),
+            subtitle: Text(
+                settings.localeCode == 'pt-BR' ? 'Real (R\$)' : 'Dólar (US\$)'),
+            trailing: const Icon(Icons.swap_horiz),
+            onTap: () {
+              if (settings.localeCode == 'pt-BR') {
+                settings.setLocale('en-US', '\$');
+              } else {
+                settings.setLocale('pt-BR', 'R\$');
+              }
+            },
+          ),
+          const Divider(),
+
+          // --- SEÇÃO: CONTA ---
+          _buildSectionHeader(theme, 'Minha Conta'),
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet_outlined),
+            title: const Text('Saldo em Conta'),
+            subtitle: Text(Formatters.formatCurrency(settings, conta.saldo)),
+            trailing: IconButton(
+              onPressed: updateSaldo,
+              icon: Icon(Icons.edit, color: theme.colorScheme.primary),
             ),
-            const Divider(),
-            Text('Configurações de Conta',
-                style: Theme.of(context).textTheme.titleLarge),
-            ListTile(
-              title: const Text('Saldo Atual'),
-              subtitle:
-                  Text(' ${Formatters.formatCurrency(settings, conta.saldo)}'),
-              trailing: IconButton(
-                onPressed: updateSaldo,
-                icon: const Icon(Icons.edit),
-              ),
-            ),
-            const Divider(),
-          ],
+          ),
+          const Divider(),
+        ],
+      ),
+    );
+  }
+
+// Helper para criar títulos de seção elegantes
+  Widget _buildSectionHeader(ThemeData theme, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: theme.colorScheme.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
         ),
       ),
     );

@@ -24,59 +24,49 @@ class _MeuAppState extends State<MeuApp> {
     const darkBackground = Color(0xFF0F172A);
     const darkSurface = Color(0xFF1E293B);
 
+    ThemeData buildTheme(Brightness brightness) {
+      return ThemeData(
+        useMaterial3: true,
+        brightness: brightness,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryBlue,
+          brightness: brightness,
+          surface: brightness == Brightness.dark ? darkSurface : null,
+        ),
+        scaffoldBackgroundColor:
+            brightness == Brightness.dark ? darkBackground : null,
+        inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none),
+            isDense: true,
+            filled: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+            fillColor: brightness == Brightness.dark
+                ? darkSurface.withOpacity(0.5)
+                : Colors.grey[100]),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: primaryBlue,
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 54),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        visualDensity: VisualDensity.standard,
+      );
+    }
+
     return MaterialApp(
       title: 'nexa',
       debugShowCheckedModeBanner: false,
       themeMode: settings.themeMode,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: primaryBlue,
-          brightness: Brightness.light,
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-            border: OutlineInputBorder(),
-            filled: true,
-            fillColor: Colors.transparent),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryBlue,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: darkBackground,
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: primaryBlue,
-            brightness: Brightness.dark,
-            surface: darkSurface),
-        inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.blueGrey.shade800)),
-            focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: primaryBlue, width: 2)),
-            filled: true,
-            fillColor: Colors.transparent),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryBlue,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 0,
-          ),
-        ),
-      ),
+      theme: buildTheme(Brightness.light),
+      darkTheme: buildTheme(Brightness.dark),
       home: const LoginPage(),
     );
   }

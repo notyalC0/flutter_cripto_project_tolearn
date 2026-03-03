@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'package:flutter_app/repositories/favoritas_repository.dart';
 import 'package:flutter_app/repositories/moeda_repository.dart';
-import 'package:flutter_app/meu_app.dart';
 import 'package:flutter_app/widgets/moedas_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/widgets/carrinho_sheet.dart';
 import '../config/app.settings.dart';
 import '../repositories/cart_repository.dart';
-import '../repositories/conta_repository.dart';
-import '../helpers/formatters.dart';
 
 class MoedasPage extends StatefulWidget {
   const MoedasPage({Key? key}) : super(key: key);
@@ -39,7 +36,13 @@ class _MoedasPageState extends State<MoedasPage> {
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
-          builder: (_) => const CarrinhoSheet());
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
+          ),
+          builder: (context) => const CarrinhoSheet());
     }
 
     appBarDinamica() {
@@ -47,7 +50,7 @@ class _MoedasPageState extends State<MoedasPage> {
 
       if (selecionadas.isEmpty) {
         return AppBar(
-          title: const Text('Cripto Moeadas'),
+          title: const Text('CRIPTO MOEDAS'),
           actions: [
             IconButton(
               icon: Text(
@@ -68,9 +71,16 @@ class _MoedasPageState extends State<MoedasPage> {
             // Botão para alternar tema
             IconButton(
               onPressed: _toggleTheme,
-              icon: Icon(
-                  settings.isDark ? Icons.wb_sunny : Icons.nightlight_round),
-              tooltip: 'Alternar Tema',
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) =>
+                    ScaleTransition(scale: animation, child: child),
+                child: Icon(
+                  settings.isDark ? Icons.wb_sunny : Icons.nightlight_round,
+                  key: ValueKey<bool>(settings
+                      .isDark), // Importante para o Flutter saber que mudou!
+                ),
+              ),
             ),
           ],
         );
@@ -113,6 +123,7 @@ class _MoedasPageState extends State<MoedasPage> {
           // Card é um widget com sombra e bordas arredondadas
           return MoedasCard(
             moeda: tabela[index],
+            tagPrefix: 'lista_',
             onLongPress: () {
               setState(() {
                 selecionadas.contains(tabela[index])
@@ -147,10 +158,13 @@ class _MoedasPageState extends State<MoedasPage> {
               },
               label: const Text(
                 'Favoritar',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold,),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              icon: const Icon(Icons.star,),
+              icon: const Icon(
+                Icons.star,
+              ),
             ),
         ],
       ),

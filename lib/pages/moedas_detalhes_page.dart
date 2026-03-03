@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../repositories/conta_repository.dart';
 import '../models/cart_item.dart';
 import '../repositories/cart_repository.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_app/helpers/formatters.dart';
 import 'package:flutter_app/models/moeda.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +10,14 @@ import 'package:provider/provider.dart';
 import '../config/app.settings.dart';
 
 class MoedasDetalhesPage extends StatefulWidget {
-  Moeda moeda;
+  final Moeda moeda;
+  final String tagPrefix;
 
-  MoedasDetalhesPage({Key? key, required this.moeda}) : super(key: key);
+  const MoedasDetalhesPage({Key? key, required this.moeda, this.tagPrefix = ''})
+      : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MoedasDetalhesPageState createState() => _MoedasDetalhesPageState();
 }
 
@@ -61,6 +63,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
+    final theme = Theme.of(context);
     final String local = settings.localeCode;
     final String symbol = settings.symbol;
 
@@ -76,23 +79,12 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
     }
 
     return Scaffold(
-      // backgroundColor pega a cor do tema atual (claro ou escuro)
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        // iconTheme garante que o botão de voltar use a cor do tema
-        iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
-        title: Text(
-          widget.moeda.nome,
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text("DETALHES"),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -102,14 +94,19 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: BorderSide(color: Colors.grey.shade200),
+                side: BorderSide(color: theme.dividerColor.withOpacity(0.1)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
                     // Ícone da moeda
-                    Image.asset(widget.moeda.icone, width: 48, height: 48),
+                    Hero(
+                      tag: '${widget.tagPrefix}${widget.moeda.sigla}',
+                      child: Image.asset(widget.moeda.icone,
+                          width: 48, height: 48),
+                    ),
+
                     const SizedBox(width: 16),
 
                     // Nome e sigla
@@ -117,20 +114,13 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.moeda.nome,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Text(widget.moeda.nome,
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
                           Text(
                             widget.moeda.sigla,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade500,
-                            ),
+                            style: theme.textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -142,7 +132,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ],
@@ -162,7 +152,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.08),
+                  color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -171,7 +161,7 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).primaryColor,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -184,22 +174,9 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
               key: _form,
               child: TextFormField(
                 controller: _valor,
-                style: const TextStyle(fontSize: 16),
                 decoration: InputDecoration(
                   labelText: 'Valor em $symbol',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  // enabledBorder é a borda quando o campo não está focado
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
                   prefixIcon: const Icon(Icons.monetization_on_outlined),
-                  filled: true,
-                  // fillColor pega a cor de fundo do tema
-                  fillColor: Theme.of(context).cardColor,
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
@@ -237,41 +214,20 @@ class _MoedasDetalhesPageState extends State<MoedasDetalhesPage> {
             // ── Botão comprar ─────────────────────────────────────────────
             Column(
               children: [
-                SizedBox(
-                  width: double.infinity, // botão ocupa toda a largura
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: adicionarAoCarrinho,
-                    icon: const Icon(Icons.add_shopping_cart_outlined),
-                    label: const Text(
-                      'adicionar ao carrinho',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      side: BorderSide(color: theme.colorScheme.primary)),
+                  onPressed: adicionarAoCarrinho,
+                  icon: const Icon(Icons.add_shopping_cart_outlined),
+                  label: const Text("ADICIONAR AO CARRINHO"),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity, // botão ocupa toda a largura
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: comprarAgora,
-                    icon: const Icon(Icons.flash_on),
-                    label: const Text(
-                      'comprar Agora',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                ElevatedButton.icon(
+                  onPressed: comprarAgora,
+                  icon: const Icon(Icons.flash_on),
+                  label: const Text(
+                    'COMPRAR AGORA',
                   ),
                 ),
               ],

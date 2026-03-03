@@ -7,7 +7,6 @@ import 'package:flutter_app/service/auth_service.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
 import 'meu_app.dart';
-import 'models/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

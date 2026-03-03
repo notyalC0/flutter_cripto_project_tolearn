@@ -33,6 +33,7 @@ class CartRepository extends ChangeNotifier {
 
   void remove(Moeda moeda) {
     _items.removeWhere((i) => i.moeda.sigla == moeda.sigla);
+    notifyListeners();
   }
 
   void clear() {
