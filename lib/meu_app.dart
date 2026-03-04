@@ -68,6 +68,9 @@ class _MeuAppState extends State<MeuApp> {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       home: const LoginPage(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+      },
     );
   }
 }

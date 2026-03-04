@@ -38,6 +38,7 @@ class CartRepository extends ChangeNotifier {
 
   void clear() {
     _items.clear();
+
     notifyListeners();
   }
 }

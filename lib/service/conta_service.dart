@@ -85,12 +85,14 @@ class ContaService {
 
   // Mandar dados para a api
 
-  Future<void> addConta(Conta conta) async {
+  Future<Conta> addConta(Conta conta) async {
     final response = await http.post(Uri.parse('$urlbase/conta'),
         headers: await _headers(), body: jsonEncode(conta.toJson()));
-    if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados para a conta!');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return Conta.fromJson(
+          jsonDecode(response.body)); // retorna a conta com id
     }
+    throw Exception('Nao foi possivel criar a conta!');
   }
 
   Future<void> addHistorico(Historico historico) async {

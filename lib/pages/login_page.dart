@@ -2,8 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/home_page.dart';
+import 'package:provider/provider.dart';
 
 import '../models/login.dart';
+import '../repositories/cart_repository.dart';
+import '../repositories/conta_repository.dart';
 import '../service/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -24,18 +27,19 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _efetuarLogin() async {
     String senha = _senhaController.text;
     String email = _emailController.text;
-    _isLoading = true;
+    setState(() => _isLoading = true);
 
     try {
       await authService.login(Login(
         email: email,
         senha: senha,
       ));
-      final token = await authService.getToken();
-      if (kDebugMode) debugPrint('$token');
 
       if (mounted) {
-        Navigator.pushReplacement(
+        context.read<CartRepository>().clear();
+        context.read<ContaRepository>().reset();
+        context.read<ContaRepository>().refreshAll();
+        await Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => const HomePage()));
       }
     } catch (e) {
@@ -86,15 +90,13 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _isLoading
                           ? null
                           : () {
-                              setState(() {
-                                _efetuarLogin();
-                              });
+                              _efetuarLogin();
                             },
                       child: _isLoading
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: const CircularProgressIndicator(
+                              child: CircularProgressIndicator(
                                 color: Colors.white,
                                 strokeWidth: 2,
                               ))

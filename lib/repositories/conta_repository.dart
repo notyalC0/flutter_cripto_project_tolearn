@@ -44,13 +44,17 @@ class ContaRepository extends ChangeNotifier {
     try {
       final conta = await _service.fetchContas();
       if (conta.isEmpty) {
-        await _service.addConta(Conta(saldo: 0.0));
+        final novaConta = await _service.addConta(Conta(saldo: 0.0));
+        contaID = novaConta.id;
+        _saldo = 0.0;
+      } else {
+        contaID = conta.first.id;
+        _saldo = conta.first.saldo.toDouble();
       }
-      contaID = conta.first.id;
-      _saldo = (conta.first.saldo).toDouble();
+
       notifyListeners();
     } catch (e) {
-      print('Erro: $e');
+      debugPrint('Erro: $e');
     }
   }
 
@@ -156,5 +160,13 @@ class ContaRepository extends ChangeNotifier {
     }
 
     await refreshAll(); // atualizar os dados da conta após a compra
+  }
+
+  void reset() {
+    _saldo = 0;
+    contaID = null;
+    _historico.clear();
+    _carteira.clear();
+    notifyListeners();
   }
 }

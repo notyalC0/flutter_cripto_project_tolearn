@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app/models/login.dart';
+import 'package:flutter_app/pages/login_page.dart';
+import 'package:flutter_app/repositories/cart_repository.dart';
+import 'package:flutter_app/service/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app.settings.dart';
 import '../repositories/conta_repository.dart';
 import 'package:flutter_app/helpers/formatters.dart';
@@ -72,6 +77,14 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
             ),
           ),
           const Divider(),
+// --- SEÇÃO: CONTA E SEGURANÇA ---
+          _buildSectionHeader(theme, 'Sessão'),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.redAccent),
+            title: const Text('Sair da Conta',
+                style: TextStyle(color: Colors.redAccent)),
+            onTap: () => _showLogoutDialog(context),
+          ),
         ],
       ),
     );
@@ -88,6 +101,37 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
         ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Fazer Logout?'),
+        content: const Text(
+            'Você precisará de e-mail e senha para acessar novamente.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () async {
+              context.read<ContaRepository>().reset();
+              context.read<CartRepository>().clear();
+              context.read<AuthService>().logOut();
+
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false);
+            },
+            child:
+                const Text('SAIR', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
       ),
     );
   }
