@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/conta.dart';
 import '../models/carteira.dart';
 import '../models/historico.dart';
+import '../models/moeda.dart';
 
 /*
 Respostas Informativas (100 – 199)
@@ -30,6 +31,19 @@ class ContaService {
   }
 
 // Receber dados da Api
+
+  Future<List<Moeda>> fetchMoedas() async {
+    final response = await http.get(
+      Uri.parse('$urlbase/moeda'),
+      headers: await _headers(),
+    );
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((i) => Moeda.fromJson(i)).toList();
+    } else {
+      throw Exception('Não foi possivel obter os dados para as Moedas!');
+    }
+  }
 
   Future<List<Conta>> fetchContas() async {
     final response = await http.get(
@@ -188,6 +202,7 @@ class ContaService {
     final response = await http.delete(
       Uri.parse("$urlbase/carteira/$sigla"),
       headers: await _headers(),
+      
     );
     if (response.statusCode != 200) {
       throw Exception('Não foi possivel deletar os dados para a carteira!');

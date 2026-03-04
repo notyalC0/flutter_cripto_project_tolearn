@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/pages/vendas_detalhes_page.dart';
 import 'package:provider/provider.dart'; // para acessar o AppSettings e ContaRepository
 
 import '../config/app.settings.dart'; // para acessar as configurações de local e símbolo
@@ -52,6 +53,12 @@ class CompradasPage extends StatelessWidget {
                                 settings, p.moeda.valor * p.quantidade),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => VendaDetalhesPage(
+                                      moeda: p.moeda,
+                                      quantidadeDisponivel: p.quantidade))),
                         );
                       },
                     ),

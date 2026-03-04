@@ -85,6 +85,7 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
                 style: TextStyle(color: Colors.redAccent)),
             onTap: () => _showLogoutDialog(context),
           ),
+              const Divider(),
         ],
       ),
     );

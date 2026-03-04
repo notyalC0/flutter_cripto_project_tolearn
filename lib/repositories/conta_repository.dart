@@ -162,6 +162,64 @@ class ContaRepository extends ChangeNotifier {
     await refreshAll(); // atualizar os dados da conta após a compra
   }
 
+  Future<void> vendaCarrinho(List<CartItem> itens) async {
+    if (itens.isEmpty) return;
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    for (final item in itens) {
+      final sigla = item.moeda.sigla;
+      final nome = item.moeda.nome;
+      final valorReais = item.moeda.valor;
+      final qtdVendida = double.parse(
+        (item.valorReais / item.moeda.valor).toStringAsFixed(8),
+      );
+
+      final posicaoAtual =
+          _carteira.where((p) => p.moeda.sigla == sigla).firstOrNull;
+
+      if (posicaoAtual == null) {
+        throw Exception("Você não possui $nome ");
+      }
+      final qtdDisponivel = double.parse(
+        posicaoAtual.quantidade.toStringAsFixed(8),
+      );
+
+      if (qtdVendida > qtdDisponivel + 0.000000001) {
+        throw Exception('Você não possui $qtdVendida de $nome');
+      }
+
+      final qtdNova = double.parse(
+        (qtdDisponivel - qtdVendida).toStringAsFixed(8),
+      );
+
+      if (qtdNova <= 0) {
+        await _service.deletarCarteira(sigla);
+      } else {
+        await _service.updateCarteira(Carteira(
+          sigla: sigla,
+          moeda: nome,
+          quantidade: qtdNova.toString(),
+        ));
+      }
+
+      await _service.addHistorico(Historico(
+        dataOp: now,
+        tipoOp: "venda",
+        moeda: nome,
+        sigla: sigla,
+        valor: valorReais,
+        qtd: qtdVendida,
+      ));
+    }
+
+    final totalRecebido = itens.fold(0.0, (s, i) => s + i.valorReais);
+    final saldoNovo = _saldo + totalRecebido;
+    await _service.updateConta(Conta(id: contaID!, saldo: saldoNovo));
+
+    await refreshAll(); // atualizar os dados da conta após a compra
+  }
+
   void reset() {
     _saldo = 0;
     contaID = null;

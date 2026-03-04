@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 class AppSettings extends ChangeNotifier {
   final Box _box = Hive.box('settings');
+  double cotacaoDolar = 5.10;
 
   /// ---------------- MOEDA / LOCALE ---------------- \\\
   Map<String, String> locale = {
