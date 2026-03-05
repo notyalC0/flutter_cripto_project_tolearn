@@ -8,25 +8,31 @@ import 'moeda_repository.dart';
 class FavoritasRepository extends ChangeNotifier {
   final _service = ContaService();
   final List<Moeda> _lista = [];
+  bool _isLoading = false;
 
   UnmodifiableListView<Moeda> get lista => UnmodifiableListView(_lista);
 
   FavoritasRepository() {
-    _load();
+    load();
   }
 
-  Future<void> _load() async {
+  Future<void> load() async {
+    if (_isLoading) return;
     try {
-      final favoritas = await _service.fetchFavoritas();
-      final siglas = favoritas.map((f) => f.sigla).toList();
+      _isLoading = true;
 
-      _lista
-        ..clear()
-        ..addAll(MoedaRepository.tabela.where((m) => siglas.contains(m.sigla)));
+      final favoritas = await _service.fetchFavoritas();
+      final siglas = favoritas.map((f) => f.sigla).toSet().toList();
+
+      _lista.clear();
+      _lista.addAll(
+          MoedaRepository.tabela.where((m) => siglas.contains(m.sigla)));
 
       notifyListeners();
     } catch (e) {
-      print('Nao foi possivel obter as favoritas: $e');
+      debugPrint('Nao foi possivel obter as favoritas: $e');
+    } finally {
+      _isLoading = false;
     }
   }
 
@@ -36,7 +42,12 @@ class FavoritasRepository extends ChangeNotifier {
     for (final moeda in moedas) {
       if (!isFavorita(moeda)) {
         try {
-          await _service.updateFavoritas(Favoritas(sigla: moeda.sigla));
+          await _service.addFavoritas(Favoritas(
+            sigla: moeda.sigla,
+            nome: moeda.nome,
+            icone: moeda.icone,
+            valor: moeda.valor,
+          ));
           _lista.add(moeda);
         } catch (e) {
           print('Erro ao atualizar favoritas $e');

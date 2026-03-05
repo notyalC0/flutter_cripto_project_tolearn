@@ -37,11 +37,13 @@ class ContaService {
       Uri.parse('$urlbase/moeda'),
       headers: await _headers(),
     );
+    debugPrint("${response.statusCode}");
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Moeda.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados para as Moedas!');
+      throw Exception(
+          'Não foi possivel obter os dados para as Moedas! | erro: ${response.statusCode}');
     }
   }
 
@@ -54,7 +56,8 @@ class ContaService {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Conta.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados para contas!');
+      throw Exception(
+          'Não foi possivel obter os dados para contas! | erro: ${response.statusCode}');
     }
   }
 
@@ -67,7 +70,8 @@ class ContaService {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Historico.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados para historico!');
+      throw Exception(
+          'Não foi possivel obter os dados para historico! | erro: ${response.statusCode}');
     }
   }
 
@@ -80,7 +84,8 @@ class ContaService {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Carteira.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados para carteira!');
+      throw Exception(
+          'Não foi possivel obter os dados para carteira! | erro: ${response.statusCode}');
     }
   }
 
@@ -93,7 +98,8 @@ class ContaService {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((i) => Favoritas.fromJson(i)).toList();
     } else {
-      throw Exception('Não foi possivel obter os dados para favoritas!');
+      throw Exception(
+          'Não foi possivel obter os dados para favoritas! | erro: ${response.statusCode}');
     }
   }
 
@@ -106,14 +112,16 @@ class ContaService {
       return Conta.fromJson(
           jsonDecode(response.body)); // retorna a conta com id
     }
-    throw Exception('Nao foi possivel criar a conta!');
+    throw Exception(
+        'Nao foi possivel criar a conta! | erro: ${response.statusCode}');
   }
 
   Future<void> addHistorico(Historico historico) async {
     final response = await http.post(Uri.parse('$urlbase/historico'),
         headers: await _headers(), body: jsonEncode(historico.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados para o historico!');
+      throw Exception(
+          'Não foi possivel enviar os dados para o historico! | erro: ${response.statusCode}');
     }
   }
 
@@ -121,7 +129,8 @@ class ContaService {
     final response = await http.post(Uri.parse('$urlbase/carteira'),
         headers: await _headers(), body: jsonEncode(carteira.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados para a carteira!');
+      throw Exception(
+          'Não foi possivel enviar os dados para a carteira! | erro: ${response.statusCode}');
     }
   }
 
@@ -129,7 +138,8 @@ class ContaService {
     final response = await http.post(Uri.parse('$urlbase/favoritas'),
         headers: await _headers(), body: jsonEncode(favoritas.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados para as favoritas!');
+      throw Exception(
+          'Não foi possivel enviar os dados para as favoritas! | erro: ${response.statusCode}');
     }
   }
 
@@ -140,7 +150,8 @@ class ContaService {
         headers: await _headers(), body: jsonEncode(conta.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados para a conta!');
+      throw Exception(
+          'Não foi possivel atualizar os dados para a conta! | erro: ${response.statusCode}');
     }
   }
 
@@ -151,7 +162,8 @@ class ContaService {
         body: jsonEncode(historico.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados para o historico!');
+      throw Exception(
+          'Não foi possivel atualizar os dados para o historico! | erro: ${response.statusCode}');
     }
   }
 
@@ -162,7 +174,8 @@ class ContaService {
         body: jsonEncode(carteira.toJson()));
 
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel atualizar os dados para a carteira!');
+      throw Exception(
+          'Não foi possivel atualizar os dados para a carteira! | erro: ${response.statusCode}');
     }
   }
 
@@ -172,7 +185,8 @@ class ContaService {
         headers: await _headers(),
         body: jsonEncode(favoritas.toJson()));
     if (response.statusCode != 200) {
-      throw Exception('Não foi possivel enviar os dados para as favoritas!');
+      throw Exception(
+          'Não foi possivel enviar os dados para as favoritas! | erro: ${response.statusCode}');
     }
   }
 
@@ -183,8 +197,9 @@ class ContaService {
       Uri.parse("$urlbase/conta/$id"),
       headers: await _headers(),
     );
-    if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados para a conta!');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+          'Não foi possivel deletar os dados para a conta! | erro: ${response.statusCode}');
     }
   }
 
@@ -193,8 +208,9 @@ class ContaService {
       Uri.parse("$urlbase/historico/$id"),
       headers: await _headers(),
     );
-    if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados para o historico!');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+          'Não foi possivel deletar os dados para o historico! | erro: ${response.statusCode}');
     }
   }
 
@@ -202,10 +218,10 @@ class ContaService {
     final response = await http.delete(
       Uri.parse("$urlbase/carteira/$sigla"),
       headers: await _headers(),
-      
     );
-    if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados para a carteira!');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+          'Não foi possivel deletar os dados para a carteira! | erro: ${response.statusCode}');
     }
   }
 
@@ -214,8 +230,10 @@ class ContaService {
       Uri.parse('$urlbase/favoritas/$sigla'),
       headers: await _headers(),
     );
-    if (response.statusCode != 200) {
-      throw Exception('Não foi possivel deletar os dados para as favoritas!');
+    debugPrint("${response.statusCode}");
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+          'Não foi possivel deletar os dados para as favoritas! | erro: ${response.statusCode}');
     }
   }
 }

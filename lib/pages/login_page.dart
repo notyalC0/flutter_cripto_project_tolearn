@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/home_page.dart';
+import 'package:flutter_app/repositories/favoritas_repository.dart';
 import 'package:provider/provider.dart';
 
 import '../models/login.dart';
@@ -36,6 +37,8 @@ class _LoginPageState extends State<LoginPage> {
       ));
 
       if (mounted) {
+        
+        Provider.of<FavoritasRepository>(context, listen: false).load();
         context.read<CartRepository>().clear();
         context.read<ContaRepository>().reset();
         context.read<ContaRepository>().refreshAll();

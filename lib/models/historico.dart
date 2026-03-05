@@ -25,12 +25,12 @@ class Historico {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "data_operacao": dataOp,
-      "tipo_operacao": tipoOp,
+      "dataOp": dataOp,
+      "tipoOp": tipoOp,
       "moeda": moeda,
       "sigla": sigla,
       "valor": valor,
-      "qtd": qtd,
+      "quantidade": qtd,
     };
   }
 
@@ -45,8 +45,8 @@ class Historico {
             ? 0.0
             : double.parse(json['valor'].toString()),
         qtd:
-            (json['qtd'] == null)
+            (json['quantidade'] == null)
             ? 0.0
-            : double.parse(json['qtd'].toString()));
+            : double.parse(json['quantidade'].toString()));
   }
 }

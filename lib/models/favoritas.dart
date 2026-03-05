@@ -13,10 +13,10 @@ class Favoritas {
 
   Map<String, dynamic> toJson() {
     return {
-      "icone": "icone",
-      "nome": "nome",
-      "sigla": "sigla",
-      "valor": "valor",
+      "icone": icone,
+      "nome": nome,
+      "sigla": sigla,
+      "valor": valor,
     };
   }
 
