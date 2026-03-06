@@ -36,17 +36,13 @@ class Historico {
 
   factory Historico.fromJson(Map<String, dynamic> json) {
     return Historico(
-        id: json['id'],
-        dataOp: json['dataOp'],
-        tipoOp: json['tipoOp'],
-        moeda: json['moeda'],
-        sigla: json['sigla'],
-        valor: (json['valor'] == null)
-            ? 0.0
-            : double.parse(json['valor'].toString()),
-        qtd:
-            (json['quantidade'] == null)
-            ? 0.0
-            : double.parse(json['quantidade'].toString()));
+      id: json['id'],
+      dataOp: json['dataOp'],
+      tipoOp: json['tipoOp'],
+      moeda: json['moeda'],
+      sigla: json['sigla'],
+      valor: double.parse(json['valor'].toString()),
+        qtd: double.parse(json['quantidade'].toString()),
+    );
   }
 }

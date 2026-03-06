@@ -1,12 +1,14 @@
 import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/favoritas.dart';
-import 'package:flutter_app/service/conta_service.dart';
 import 'package:flutter_app/models/moeda.dart';
+import 'package:flutter_app/service/api_service.dart';
+
 import 'moeda_repository.dart';
 
 class FavoritasRepository extends ChangeNotifier {
-  final _service = ContaService();
+  final _service = ApiService();
   final List<Moeda> _lista = [];
   bool _isLoading = false;
 

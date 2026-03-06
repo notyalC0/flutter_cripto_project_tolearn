@@ -18,6 +18,6 @@ class Carteira {
     return Carteira(
         sigla: json['sigla'],
         moeda: json['moeda'],
-        quantidade: json['quantidade']);
+        quantidade: json['quantidade'].toString());
   }
 }

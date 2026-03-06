@@ -1,17 +1,18 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/models/carteira.dart';
 import 'package:flutter_app/models/historico.dart';
-import 'package:collection/collection.dart';
+
 import '../models/cart_item.dart';
 import '../models/conta.dart';
 import '../models/moeda.dart';
 import '../models/posicao.dart';
 import '../models/transacao.dart';
-import '../service/conta_service.dart';
+import '../service/api_service.dart';
 import 'moeda_repository.dart';
 
 class ContaRepository extends ChangeNotifier {
-  final _service = ContaService();
+  final _service = ApiService();
   int? contaID;
   double _saldo = 0;
   final List<Posicao> _carteira = [];
@@ -100,125 +101,31 @@ class ContaRepository extends ChangeNotifier {
     _historico.sort((a, b) => b.dataOperacao.compareTo(a.dataOperacao));
   }
 
-//------------- SETTERS ---------------\\
 
-  Future<void> setSaldo(double valor) async {
-    final contaNova = Conta(id: contaID!, saldo: valor);
-    await _service.updateConta(contaNova);
 
-    _saldo = valor;
-    notifyListeners();
-  }
 
   Future<void> checkoutCarrinho(List<CartItem> itens) async {
-    if (itens.isEmpty)
-      return; // verificar se o carrinho não está vazio se for vazio, não faz nada
+  if (itens.isEmpty) return;
 
-    final total = itens.fold(
-        0.0, (s, i) => s + i.valorReais); // calcular o valor total do carrinho
-    if (_saldo < total) throw Exception("Saldo insuficiente");
-    final saldoN = _saldo - total;
+  final lista = itens.map((i) => {
+    'sigla': i.moeda.sigla,
+    'quantidade': i.quantidadeMoeda,
+  }).toList();
 
-    // obter o timestamp atual para registrar a data da transação
-    final now = DateTime.now().millisecondsSinceEpoch;
+  await _service.processarCarrinho(lista);
+  await refreshAll();
+}
 
-    // atualizar o saldo da conta no banco de dados
-    await _service.updateConta(Conta(id: contaID!, saldo: saldoN));
-
-    for (final item in itens) {
-      final sigla = item.moeda.sigla;
-      final nome = item.moeda.nome;
-      final qtdCripto = item.quantidadeMoeda;
-      final valorReais = item.moeda.valor;
-
-      final posicaoAtual =
-          _carteira.where((p) => p.moeda.sigla == sigla).firstOrNull;
-
-      if (posicaoAtual == null) {
-        await _service.addCarteira(Carteira(
-          sigla: sigla,
-          moeda: nome,
-          quantidade: qtdCripto.toString(),
-        ));
-      } else {
-        final quantidadeNova = posicaoAtual.quantidade + qtdCripto;
-        await _service.updateCarteira(Carteira(
-          sigla: sigla,
-          moeda: nome,
-          quantidade: quantidadeNova.toString(),
-        ));
-      }
-
-      await _service.addHistorico(Historico(
-        dataOp: now,
-        tipoOp: "compra",
-        moeda: nome,
-        sigla: sigla,
-        valor: valorReais,
-        qtd: qtdCripto,
-      ));
-    }
-
-    await refreshAll(); // atualizar os dados da conta após a compra
-  }
 
   Future<void> vendaCarrinho(List<CartItem> itens) async {
-    if (itens.isEmpty) return;
+  if (itens.isEmpty) return;
 
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    for (final item in itens) {
-      final sigla = item.moeda.sigla;
-      final nome = item.moeda.nome;
-      final valorReais = item.moeda.valor;
-      final qtdVendida = double.parse(
-        (item.valorReais / item.moeda.valor).toStringAsFixed(8),
-      );
-
-      final posicaoAtual =
-          _carteira.where((p) => p.moeda.sigla == sigla).firstOrNull;
-
-      if (posicaoAtual == null) {
-        throw Exception("Você não possui $nome ");
-      }
-      final qtdDisponivel = double.parse(
-        posicaoAtual.quantidade.toStringAsFixed(8),
-      );
-
-      if (qtdVendida > qtdDisponivel + 0.000000001) {
-        throw Exception('Você não possui $qtdVendida de $nome');
-      }
-
-      final qtdNova = double.parse(
-        (qtdDisponivel - qtdVendida).toStringAsFixed(8),
-      );
-
-      if (qtdNova <= 0) {
-        await _service.deletarCarteira(sigla);
-      } else {
-        await _service.updateCarteira(Carteira(
-          sigla: sigla,
-          moeda: nome,
-          quantidade: qtdNova.toString(),
-        ));
-      }
-
-      await _service.addHistorico(Historico(
-        dataOp: now,
-        tipoOp: "venda",
-        moeda: nome,
-        sigla: sigla,
-        valor: valorReais,
-        qtd: qtdVendida,
-      ));
-    }
-
-    final totalRecebido = itens.fold(0.0, (s, i) => s + i.valorReais);
-    final saldoNovo = _saldo + totalRecebido;
-    await _service.updateConta(Conta(id: contaID!, saldo: saldoNovo));
-
-    await refreshAll(); // atualizar os dados da conta após a compra
+  for (final item in itens) {
+    await _service.vender(item.moeda.sigla, item.quantidadeMoeda);
   }
+
+  await refreshAll();
+}
 
   void reset() {
     _saldo = 0;

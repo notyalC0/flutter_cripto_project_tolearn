@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app/models/login.dart';
 import 'package:flutter_app/pages/login_page.dart';
 import 'package:flutter_app/repositories/cart_repository.dart';
 import 'package:flutter_app/service/auth_service.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app.settings.dart';
 import '../repositories/conta_repository.dart';
 import 'package:flutter_app/helpers/formatters.dart';
@@ -71,10 +69,10 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
             leading: const Icon(Icons.account_balance_wallet_outlined),
             title: const Text('Saldo em Conta'),
             subtitle: Text(Formatters.formatCurrency(settings, conta.saldo)),
-            trailing: IconButton(
-              onPressed: updateSaldo,
+           /*  trailing: IconButton(
+
               icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-            ),
+            ), */
           ),
           const Divider(),
 // --- SEÇÃO: CONTA E SEGURANÇA ---
@@ -137,7 +135,7 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
     );
   }
 
-  updateSaldo() async {
+  /* updateSaldo() async {
     final form = GlobalKey<FormState>();
     final valor = TextEditingController();
     final conta = context.read<ContaRepository>();
@@ -178,5 +176,5 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
     );
 
     showDialog(context: context, builder: (context) => dialog);
-  }
+  } */
 }

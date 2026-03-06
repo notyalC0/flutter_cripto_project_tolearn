@@ -1,9 +1,9 @@
 import 'package:flutter_app/models/moeda.dart';
 
-import '../service/conta_service.dart';
+import '../service/api_service.dart';
 
 class MoedaRepository {
-  final _service = ContaService();
+  final _service = ApiService();
   static List<Moeda> tabela = [];
 
   Future<void> carregarMoedas() async {

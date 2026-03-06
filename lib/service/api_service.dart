@@ -3,24 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/models/favoritas.dart';
 import 'package:flutter_app/service/auth_service.dart';
 import 'package:http/http.dart' as http;
-import '../models/conta.dart';
 import '../models/carteira.dart';
+import '../models/conta.dart';
 import '../models/historico.dart';
 import '../models/moeda.dart';
 
-/*
-Respostas Informativas (100 – 199)
-Respostas bem-sucedidas (200 – 299)
-Mensagens de redirecionamento (300 – 399)
-Respostas de erro do cliente (400 – 499)
-Respostas de erro do servidor (500 – 599)
-*/
-
-class ContaService {
+class ApiService {
   final String urlbase = 'http://localhost:8080/api';
   final AuthService _authService = AuthService();
 
-// _headers
+// Header da requisição com token
 
   Future<Map<String, String>> _headers() async {
     final token = await _authService.getToken();
@@ -30,7 +22,35 @@ class ContaService {
     };
   }
 
-// Receber dados da Api
+// Requisições http para metodos
+
+  Future<void> comprar(String sigla, double quantidade) async {
+    final response = await http.post(Uri.parse('$urlbase/transacao/comprar'),
+        headers: await _headers(),
+        body: jsonEncode({'sigla': sigla, 'quantidade': quantidade}));
+    if (response.statusCode != 200) {
+      throw Exception(response.body.replaceAll('"', ''));
+    }
+  }
+
+  Future<void> vender(String sigla, double quantidade) async {
+    final response = await http.post(Uri.parse('$urlbase/transacao/vender'),
+        headers: await _headers(),
+        body: jsonEncode({'sigla': sigla, 'quantidade': quantidade}));
+    if (response.statusCode != 200) {
+      throw Exception(response.body.replaceAll('"', ''));
+    }
+  }
+
+  Future<void> processarCarrinho(List<Map<String, dynamic>> itens) async {
+    final response = await http.post(Uri.parse('$urlbase/transacao/carrinho'),
+        headers: await _headers(), body: jsonEncode(itens));
+    if (response.statusCode != 200) {
+      throw Exception(response.body.replaceAll('"', ''));
+    }
+  }
+
+// Requisições http padrão - GET/POST/PUT/DELETE
 
   Future<List<Moeda>> fetchMoedas() async {
     final response = await http.get(
@@ -103,8 +123,6 @@ class ContaService {
     }
   }
 
-  // Mandar dados para a api
-
   Future<Conta> addConta(Conta conta) async {
     final response = await http.post(Uri.parse('$urlbase/conta'),
         headers: await _headers(), body: jsonEncode(conta.toJson()));
@@ -142,8 +160,6 @@ class ContaService {
           'Não foi possivel enviar os dados para as favoritas! | erro: ${response.statusCode}');
     }
   }
-
-  // Atualizar dados da api
 
   Future<void> updateConta(Conta conta) async {
     final response = await http.put(Uri.parse('$urlbase/conta/${conta.id}'),
@@ -189,8 +205,6 @@ class ContaService {
           'Não foi possivel enviar os dados para as favoritas! | erro: ${response.statusCode}');
     }
   }
-
-  // Deletar dados da api
 
   Future<void> deletarConta(int id) async {
     final response = await http.delete(
