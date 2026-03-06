@@ -127,6 +127,11 @@ class ContaRepository extends ChangeNotifier {
   await refreshAll();
 }
 
+Future<void> depositar(double valor) async {
+    await _service.depositar(valor);
+    await refreshAll();
+}
+
   void reset() {
     _saldo = 0;
     contaID = null;

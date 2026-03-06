@@ -66,14 +66,14 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
           // --- SEÇÃO: CONTA ---
           _buildSectionHeader(theme, 'Minha Conta'),
           ListTile(
-            leading: const Icon(Icons.account_balance_wallet_outlined),
-            title: const Text('Saldo em Conta'),
-            subtitle: Text(Formatters.formatCurrency(settings, conta.saldo)),
-           /*  trailing: IconButton(
-
-              icon: Icon(Icons.edit, color: theme.colorScheme.primary),
-            ), */
-          ),
+  leading: const Icon(Icons.account_balance_wallet_outlined),
+  title: const Text('Saldo em Conta'),
+  subtitle: Text(Formatters.formatCurrency(settings, conta.saldo)),
+  trailing: IconButton(
+    icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+    onPressed: () => _showDepositoDialog(context),
+  ),
+),
           const Divider(),
 // --- SEÇÃO: CONTA E SEGURANÇA ---
           _buildSectionHeader(theme, 'Sessão'),
@@ -135,26 +135,33 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
     );
   }
 
-  /* updateSaldo() async {
-    final form = GlobalKey<FormState>();
-    final valor = TextEditingController();
-    final conta = context.read<ContaRepository>();
+  void _showDepositoDialog(BuildContext context) {
+  final form = GlobalKey<FormState>();
+  final valor = TextEditingController();
+  final conta = context.read<ContaRepository>();
 
-    valor.text = conta.saldo.toString();
-
-    AlertDialog dialog = AlertDialog(
-      title: const Text('Atualizar Saldo'),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Depositar Saldo'),
       content: Form(
         key: form,
         child: TextFormField(
           controller: valor,
           keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Valor a depositar',
+            prefixIcon: Icon(Icons.monetization_on_outlined),
+          ),
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
           ],
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Por favor, insira um valor';
+              return 'Informe um valor!';
+            }
+            if (double.tryParse(value) == null || double.parse(value) <= 0) {
+              return 'Valor inválido!';
             }
             return null;
           },
@@ -162,19 +169,29 @@ class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar')),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('CANCELAR'),
+        ),
         TextButton(
-            onPressed: () {
-              if (form.currentState!.validate()) {
-                conta.setSaldo(double.parse(valor.text));
-                Navigator.pop(context);
+          onPressed: () async {
+            if (form.currentState!.validate()) {
+              Navigator.pop(context);
+              try {
+                await conta.depositar(double.parse(valor.text));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Depósito realizado com sucesso!')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+                );
               }
-            },
-            child: const Text('Atualizar'))
+            }
+          },
+          child: const Text('DEPOSITAR'),
+        ),
       ],
-    );
-
-    showDialog(context: context, builder: (context) => dialog);
-  } */
+    ),
+  );
+}
 }

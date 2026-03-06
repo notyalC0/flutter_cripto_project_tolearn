@@ -50,6 +50,17 @@ class ApiService {
     }
   }
 
+  Future<void> depositar(double valor) async {
+    final response = await http.patch(
+        Uri.parse('$urlbase/conta/depositar'),
+        headers: await _headers(),
+        body: jsonEncode({'valor': valor}),
+    );
+    if (response.statusCode != 200) {
+        throw Exception('Não foi possível realizar o depósito!');
+    }
+}
+
 // Requisições http padrão - GET/POST/PUT/DELETE
 
   Future<List<Moeda>> fetchMoedas() async {
